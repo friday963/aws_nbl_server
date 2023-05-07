@@ -19,3 +19,5 @@ resource "aws_instance" "subnet_2_instance" {
   }
   security_groups = [aws_security_group.web_server_sg.id]
   user_data       = file("userdata.txt")
+
+}
