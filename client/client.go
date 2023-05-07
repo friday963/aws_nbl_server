@@ -13,6 +13,7 @@ func main() {
         wg.Add(1)
         go func() {
             defer wg.Done()
+			// "TODO: Change from localhost to LB"
             resp, err := http.Get("http://localhost:80/")
             if err != nil {
                 fmt.Println("Error:", err)
