@@ -1,2 +1,5 @@
 #!/bin/bash
 yum update -y
+wget https://github.com/friday963/aws_nlb_server/blob/main/server/webserver
+chmod +x webserver
+./webserver
