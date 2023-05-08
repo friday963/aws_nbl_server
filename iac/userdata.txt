@@ -1,5 +1,4 @@
 #!/bin/bash
-yum update -y
-wget https://github.com/friday963/aws_nlb_server/blob/main/server/webserver
-chmod +x webserver
-./webserver
+apt-get update -y
+git clone https://github.com/friday963/aws_nlb_server.git
+aws_nlb_server/server/server

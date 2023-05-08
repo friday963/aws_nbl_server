@@ -1,5 +1,5 @@
 resource "aws_instance" "subnet_1_instance" {
-  ami           = "ami-0c94855ba95c71c99"
+  ami           = "ami-007855ac798b5175e"
   instance_type = "t2.micro"
   subnet_id     = aws_subnet.subnet_1.id
 
@@ -10,7 +10,7 @@ resource "aws_instance" "subnet_1_instance" {
   user_data       = file("userdata.txt")
 }
 resource "aws_instance" "subnet_2_instance" {
-  ami           = "ami-0c94855ba95c71c99"
+  ami           = "ami-007855ac798b5175e"
   instance_type = "t2.micro"
   subnet_id     = aws_subnet.subnet_2.id
 
