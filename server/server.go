@@ -18,6 +18,8 @@ func main() {
 
 	logger := log.New(f, "", log.LstdFlags)
 	// Create a handler function to handle incoming HTTP requests
+
+	// Didn't really end up using the log feature.  While it works, and logs information about the request, I decided to put loggin into cloudwatch instead.
 	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// Log the request details to the file
 		logger.Printf("%s - [%s] \"%s %s %s\" \"%s\"\n", r.RemoteAddr, time.Now().Format("02/Jan/2006:15:04:05 -0700"), r.Method, r.URL.Path, r.Proto, r.UserAgent())

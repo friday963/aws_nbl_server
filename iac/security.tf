@@ -1,3 +1,4 @@
+# Creates a security group with ingress access to port 80, 22, and icmp.  Only port 80 is needed, but I used them to do some debugging and testing.
 resource "aws_security_group" "web_server_sg" {
   name_prefix = "web_server_sg"
 
@@ -8,7 +9,7 @@ resource "aws_security_group" "web_server_sg" {
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
   }
-   ingress {
+  ingress {
     from_port   = 22
     to_port     = 22
     protocol    = "tcp"

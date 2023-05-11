@@ -1,7 +1,9 @@
+# Create the VPC
 resource "aws_vpc" "nlb_vpc" {
   cidr_block = "10.0.0.0/16"
 }
 
+# Create two subnets to test cross zone load balancing
 resource "aws_subnet" "subnet_1" {
   vpc_id                  = aws_vpc.nlb_vpc.id
   cidr_block              = "10.0.1.0/24"
@@ -16,6 +18,9 @@ resource "aws_subnet" "subnet_2" {
   map_public_ip_on_launch = true
 }
 
+# Create a network load balancer.  Notice the resource is just called "aws_lb", the load balancer type could have said alb or network.
+# Tie the subnets to the load balancer.
+
 resource "aws_lb" "my_nlb" {
   name               = "golang-nlb"
   internal           = false
@@ -26,10 +31,17 @@ resource "aws_lb" "my_nlb" {
   enable_deletion_protection = false
 
   tags = {
-    Environment = "dev"
+    Environment = "nlb"
   }
+
 }
 
+# data resource used to pull in some information about the newly created load balancer.  Used when tying the flow logs and cloud watch logs together.
+data "aws_lb" "my_nlb_name" {
+  name = aws_lb.my_nlb.name
+}
+
+# creates a listener on the load balancer.  If it gets a request on this port it will forward to the targets (aka group of instances, containers, or lambdas).
 resource "aws_lb_listener" "my_listener" {
   load_balancer_arn = aws_lb.my_nlb.arn
   port              = 80
@@ -41,6 +53,7 @@ resource "aws_lb_listener" "my_listener" {
   }
 }
 
+# next three resource blocks work together to create a target group (just a grouping of compute or serverless resources)
 resource "aws_lb_target_group" "nlb_tg" {
   name_prefix = "ec2-tg"
   port        = 80
@@ -53,6 +66,7 @@ resource "aws_lb_target_group" "nlb_tg" {
 
   depends_on = [aws_lb.my_nlb]
 }
+# attach the resources to the target group created above.
 resource "aws_lb_target_group_attachment" "attachment_1" {
   target_group_arn = aws_lb_target_group.nlb_tg.arn
   target_id        = aws_instance.subnet_1_instance.id
@@ -64,7 +78,7 @@ resource "aws_lb_target_group_attachment" "attachment_2" {
   port             = 80
 }
 
-
+# create an IGW so our resources can communicate with the the client considering this is an internet facing load balancer.
 resource "aws_internet_gateway" "nlb_igw" {
   vpc_id = aws_vpc.nlb_vpc.id
 
@@ -73,6 +87,7 @@ resource "aws_internet_gateway" "nlb_igw" {
   }
 }
 
+# creates a new route table that has a default route to the internet.  This must be created or instances will not be able to communicate with clients.
 resource "aws_route_table" "my_public_rt" {
   vpc_id = aws_vpc.nlb_vpc.id
 
@@ -85,7 +100,7 @@ resource "aws_route_table" "my_public_rt" {
     Name = "my-public-route-table"
   }
 }
-
+# Lastly you need to associate the subnets with our servers to that route table.  This gives us fine grain details on how hosts in these two subnets will communicate with other resources.
 resource "aws_route_table_association" "subnet_1_association" {
   subnet_id      = aws_subnet.subnet_1.id
   route_table_id = aws_route_table.my_public_rt.id
